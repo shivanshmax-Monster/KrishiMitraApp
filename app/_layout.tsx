@@ -3,6 +3,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { requestNotificationPermissions } from '../src/notifications';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -32,6 +33,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+      requestNotificationPermissions();
     }
   }, [loaded]);
 
