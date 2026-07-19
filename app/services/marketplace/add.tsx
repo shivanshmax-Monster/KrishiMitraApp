@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, addDoc } from 'firebase/firestore';
-import { ref, uploadString, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../../../src/firebaseConfig';
+import { db } from '../../../src/firebaseConfig';
 import { useAuth } from '../../../src/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +12,7 @@ export default function AddMarketItemScreen() {
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [image, setImage] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   
   const { user } = useAuth();
@@ -22,7 +22,8 @@ export default function AddMarketItemScreen() {
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.5,
+      quality: 0.1, // Compress heavily to fit within Firestore document limits
+      base64: true,
     });
 
     if (!result.canceled) {
@@ -32,34 +33,18 @@ export default function AddMarketItemScreen() {
   };
 
   const handlePublish = async () => {
-    if (!title || !price || !image || !user) {
+    if (!title || !price || !image || !user || !imageBase64) {
       alert("Please fill all fields and select an image.");
       return;
     }
 
     setLoading(true);
     try {
-      if (!imageBase64) throw new Error("Image data is missing.");
-      const filename = `market/${user.uid}_${Date.now()}.jpg`;
-      const storageRef = ref(storage, filename);
-      
-      // The ultimate hack: React Native's Blob polyfill crashes Firebase when passed ArrayBuffers.
-      // By temporarily disabling global.Blob, Firebase is forced to bypass Blob creation 
-      // and natively upload the base64 string using its own robust fallback methods.
-      const originalBlob = global.Blob;
-      global.Blob = undefined as any;
+      // By-pass Firebase Storage completely to fix the (storage/unknown) error.
+      // Save the raw compressed base64 string directly into Firestore.
+      const imageUrl = `data:image/jpeg;base64,${imageBase64}`;
 
-      try {
-        await uploadString(storageRef, imageBase64, 'base64', {
-          contentType: 'image/jpeg',
-        });
-      } finally {
-        global.Blob = originalBlob;
-      }
-
-      const imageUrl = await getDownloadURL(storageRef);
-
-      // 2. Save document
+      // Save document
       await addDoc(collection(db, 'marketplace_items'), {
         title,
         price: parseFloat(price),

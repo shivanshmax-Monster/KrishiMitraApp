@@ -3,11 +3,18 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Scr
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { useTranslation } from 'react-i18next';
 
 export default function CropDetectionScreen() {
   const [image, setImage] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const { t } = useTranslation();
+
+  // ⚠️ API KEY INSERTED ⚠️
+  const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || "YOUR_GEMINI_API_KEY_HERE";
 
   const pickImage = async (useCamera: boolean = false) => {
     let permissionResult;
@@ -28,39 +35,61 @@ export default function CropDetectionScreen() {
       pickerResult = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.8,
+        quality: 0.5,
+        base64: true,
       });
     } else {
       pickerResult = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.8,
+        quality: 0.5,
+        base64: true,
       });
     }
 
     if (!pickerResult.canceled) {
       setImage(pickerResult.assets[0].uri);
+      setImageBase64(pickerResult.assets[0].base64 || null);
       setResult(null); // Reset previous result
     }
   };
 
-  const analyzeCrop = () => {
-    if (!image) return;
+  const analyzeCrop = async () => {
+    if (!imageBase64) return;
     
+    if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+      alert("Please enter your Gemini API Key in crop-detection.tsx!");
+      return;
+    }
+
     setLoading(true);
-    // Simulate an AI network request
-    setTimeout(() => {
-      // Mock result
-      const mockResults = [
-        { disease: 'Healthy Crop', confidence: '98%', action: 'No action required. Keep up the good work!' },
-        { disease: 'Leaf Blight', confidence: '85%', action: 'Apply fungicide. Ensure proper drainage.' },
-        { disease: 'Nitrogen Deficiency', confidence: '92%', action: 'Apply nitrogen-rich fertilizer.' }
-      ];
-      // Pick a random result for demonstration
-      const randomResult = mockResults[Math.floor(Math.random() * mockResults.length)];
-      setResult(randomResult);
+    
+    try {
+      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+      const prompt = "You are an expert agronomist. Analyze this plant leaf image. Reply strictly in JSON format without markdown. Include exactly these 4 keys: 'crop' (the name of the plant/crop), 'disease' (the health status or specific disease name), 'confidence' (e.g. '95%'), and 'action' (one sentence of specific advice or 'No action needed').";
+      
+      const imagePart = {
+        inlineData: {
+          data: imageBase64,
+          mimeType: "image/jpeg"
+        }
+      };
+
+      const resultPayload = await model.generateContent([prompt, imagePart]);
+      const rawText = resultPayload.response.text();
+      const cleanJsonStr = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+      
+      const parsedResult = JSON.parse(cleanJsonStr);
+      setResult(parsedResult);
+      
+    } catch (err: any) {
+      console.error("AI Error:", err);
+      alert("Failed to analyze crop. Ensure your API key is valid.");
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -68,8 +97,8 @@ export default function CropDetectionScreen() {
       
       <View style={styles.header}>
         <Ionicons name="scan-circle" size={48} color="#16a34a" />
-        <Text style={styles.title}>Crop Health Detection</Text>
-        <Text style={styles.subtitle}>Upload a photo of your plant leaf to detect diseases or nutrient deficiencies instantly.</Text>
+        <Text style={styles.title}>{t('crop_detection')}</Text>
+        <Text style={styles.subtitle}>{t('cd_subtitle')}</Text>
       </View>
 
       <View style={styles.imageSection}>
@@ -78,7 +107,7 @@ export default function CropDetectionScreen() {
         ) : (
           <View style={styles.placeholder}>
             <Ionicons name="image-outline" size={64} color="#cbd5e1" />
-            <Text style={styles.placeholderText}>No image selected</Text>
+            <Text style={styles.placeholderText}>{t('cd_no_image')}</Text>
           </View>
         )}
       </View>
@@ -87,12 +116,12 @@ export default function CropDetectionScreen() {
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.actionBtn} onPress={() => pickImage(true)}>
             <Ionicons name="camera" size={24} color="#ffffff" />
-            <Text style={styles.actionBtnText}>Take Photo</Text>
+            <Text style={styles.actionBtnText}>{t('cd_take_photo')}</Text>
           </TouchableOpacity>
           
           <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#3b82f6' }]} onPress={() => pickImage(false)}>
             <Ionicons name="images" size={24} color="#ffffff" />
-            <Text style={styles.actionBtnText}>Gallery</Text>
+            <Text style={styles.actionBtnText}>{t('cd_gallery')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -104,7 +133,7 @@ export default function CropDetectionScreen() {
             style={styles.gradientBtn}
           >
             <Ionicons name="analytics" size={24} color="#ffffff" />
-            <Text style={styles.analyzeText}>Analyze Crop</Text>
+            <Text style={styles.analyzeText}>{t('cd_analyze')}</Text>
           </LinearGradient>
         </TouchableOpacity>
       )}
@@ -112,7 +141,7 @@ export default function CropDetectionScreen() {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#16a34a" />
-          <Text style={styles.loadingText}>AI is analyzing your crop...</Text>
+          <Text style={styles.loadingText}>{t('cd_analyzing')}</Text>
         </View>
       )}
 
@@ -128,13 +157,18 @@ export default function CropDetectionScreen() {
           </View>
           
           <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Confidence Score:</Text>
+            <Text style={styles.resultLabel}>{t('cd_detected')}</Text>
+            <Text style={styles.resultValue}>{result.crop}</Text>
+          </View>
+          
+          <View style={styles.resultRow}>
+            <Text style={styles.resultLabel}>{t('cd_confidence')}</Text>
             <Text style={styles.resultValue}>{result.confidence}</Text>
           </View>
           
           <View style={styles.divider} />
           
-          <Text style={styles.resultLabel}>Recommended Action:</Text>
+          <Text style={styles.resultLabel}>{t('cd_action')}</Text>
           <Text style={styles.actionText}>{result.action}</Text>
 
           <TouchableOpacity 
@@ -144,7 +178,7 @@ export default function CropDetectionScreen() {
               setResult(null);
             }}
           >
-            <Text style={styles.resetBtnText}>Scan Another Plant</Text>
+            <Text style={styles.resetBtnText}>{t('cd_scan_another')}</Text>
           </TouchableOpacity>
         </View>
       )}

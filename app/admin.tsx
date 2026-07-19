@@ -29,7 +29,7 @@ export default function AdminPanel() {
       const usersData = usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setUsers(usersData);
 
-      const listingsSnap = await getDocs(collection(db, 'marketplace'));
+      const listingsSnap = await getDocs(collection(db, 'marketplace_items'));
       const listingsData = listingsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setListings(listingsData);
     } catch (error) {
@@ -47,7 +47,7 @@ export default function AdminPanel() {
         style: 'destructive', 
         onPress: async () => {
           try {
-            await deleteDoc(doc(db, 'marketplace', id));
+            await deleteDoc(doc(db, 'marketplace_items', id));
             setListings(listings.filter(item => item.id !== id));
             Alert.alert('Success', 'Listing removed.');
           } catch (error) {

@@ -6,11 +6,11 @@ import { useAuth } from '../../src/context/AuthContext';
 
 export default function TabLayout() {
   const { t } = useTranslation();
-  const { session, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) return null;
 
-  if (!session) {
+  if (!user) {
     return <Redirect href="/(auth)/login" />;
   }
 

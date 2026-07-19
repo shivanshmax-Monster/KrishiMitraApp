@@ -9,7 +9,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAdvhdpjUkG_-FyxiWFQD0MeLua9NwO5QI",
   authDomain: "smartnotesapp-a58db.firebaseapp.com",
   projectId: "smartnotesapp-a58db",
-  storageBucket: "smartnotesapp-a58db.firebasestorage.app",
+  storageBucket: "smartnotesapp-a58db.appspot.com",
   messagingSenderId: "405873538085",
   appId: "1:405873538085:web:f13061f9077ecf7c8c7bcc",
   measurementId: "G-8ZM35YQ4VQ"
@@ -26,7 +26,6 @@ const auth = initializeAuth(app, {
 // Initialize Firestore with long polling and explicit offline persistence caching
 const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
-  localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
 });
 
 const storage = getStorage(app);

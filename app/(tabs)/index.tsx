@@ -5,11 +5,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../src/firebaseConfig';
 
 export default function DashboardScreen() {
   const { profile } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
+
+  const toggleLanguage = async () => {
+    const newLang = i18n.language === 'en' ? 'hi' : 'en';
+    i18n.changeLanguage(newLang);
+    if (profile?.uid) {
+      await updateDoc(doc(db, 'users', profile.uid), { language: newLang });
+    }
+  };
 
   const services = [
     {
@@ -42,10 +52,17 @@ export default function DashboardScreen() {
           <Text style={styles.greeting}>{t('welcome')},</Text>
           <Text style={styles.name}>{profile?.name || 'Farmer'}</Text>
         </View>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {(profile?.name || 'F')[0].toUpperCase()}
-          </Text>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.langToggle} onPress={toggleLanguage}>
+            <Text style={styles.langToggleText}>
+              {i18n.language === 'en' ? 'HI' : 'EN'}
+            </Text>
+          </TouchableOpacity>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {(profile?.name || 'F')[0].toUpperCase()}
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -114,6 +131,22 @@ const styles = StyleSheet.create({
     color: '#1e293b',
     fontSize: 26,
     fontWeight: 'bold',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  langToggle: {
+    backgroundColor: '#e2e8f0',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  langToggleText: {
+    color: '#475569',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   avatar: {
     width: 48,

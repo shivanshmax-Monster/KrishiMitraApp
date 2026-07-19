@@ -14,6 +14,8 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  const [isLoginAsAdmin, setIsLoginAsAdmin] = useState(false);
+
   const handleLogin = async () => {
     if (!email || !password) {
       setError('Please fill in all fields');
@@ -23,6 +25,7 @@ export default function LoginScreen() {
     setError('');
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // AuthContext handles role verification automatically
       router.replace('/(tabs)');
     } catch (err: any) {
       setError(err.message || 'Failed to login');
@@ -38,8 +41,25 @@ export default function LoginScreen() {
     >
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>{t('welcome')}</Text>
-          <Text style={styles.subtitle}>Sign in to your farmer account</Text>
+          <Text style={styles.title}>{isLoginAsAdmin ? 'Admin Portal' : t('welcome')}</Text>
+          <Text style={styles.subtitle}>
+            {isLoginAsAdmin ? 'Sign in to access the administrative dashboard' : 'Sign in to your farmer account'}
+          </Text>
+        </View>
+
+        <View style={styles.roleToggleContainer}>
+          <TouchableOpacity 
+            style={[styles.roleTab, !isLoginAsAdmin && styles.activeRoleTab]}
+            onPress={() => setIsLoginAsAdmin(false)}
+          >
+            <Text style={[styles.roleTabText, !isLoginAsAdmin && styles.activeRoleTabText]}>Farmer</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.roleTab, isLoginAsAdmin && styles.activeRoleTab]}
+            onPress={() => setIsLoginAsAdmin(true)}
+          >
+            <Text style={[styles.roleTabText, isLoginAsAdmin && styles.activeRoleTabText]}>Admin</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.form}>
@@ -113,8 +133,37 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   header: {
-    marginBottom: 40,
+    marginBottom: 24,
     alignItems: 'center',
+  },
+  roleToggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#e2e8f0',
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 24,
+  },
+  roleTab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  activeRoleTab: {
+    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  roleTabText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#64748b',
+  },
+  activeRoleTabText: {
+    color: '#1e293b',
   },
   title: {
     fontSize: 28,
