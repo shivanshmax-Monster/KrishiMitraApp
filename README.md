@@ -77,7 +77,7 @@ npm install
 #### 3. Environment Variables
 For security reasons, API keys are not included in this repository. You must create a `.env` file in the root of the project to enable the AI features.
 
-Create a file named `.env` and add your Google Gemini API Key:
+You can simply rename the provided `.env.example` file to `.env` and insert your actual Google Gemini API Key:
 ```env
 EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
 ```
