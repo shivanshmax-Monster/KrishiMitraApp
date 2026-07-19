@@ -27,11 +27,7 @@
 *   **AI Integration:** Google Gemini 1.5 Flash Vision API
 *   **Internationalization:** `react-i18next`
 
-## 🧪 Testing Credentials
 
-To test the application, use the following demo accounts:
-*   **Farmer View:** `testfarmer@gmail.com` | Password: `123456`
-*   **Admin View:** `test@gmail.com` | Password: `123456`
 
 ## ⚙️ Running Locally
 
