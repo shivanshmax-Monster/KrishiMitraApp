@@ -27,14 +27,67 @@
 *   **AI Integration:** Google Gemini 1.5 Flash Vision API
 *   **Internationalization:** `react-i18next`
 
+---
 
+## 📂 Project Structure
+
+```
+KrishiMitraApp/
+├── app/                  # Main Expo Router screens
+│   ├── (auth)/           # Authentication screens (Login, Signup)
+│   ├── (tabs)/           # Main navigation tabs (Home, Profile, etc.)
+│   ├── services/         # App features (Marketplace, Crop Detection)
+│   └── admin.tsx         # Admin dashboard screen
+├── src/
+│   ├── context/          # React Context providers (AuthContext)
+│   ├── firebaseConfig.js # Firebase initialization & config
+│   └── i18n.ts           # Translation configuration (English & Hindi)
+├── assets/               # Images, fonts, and icons
+└── eas.json              # Expo Application Services build configuration
+```
+
+---
 
 ## ⚙️ Running Locally
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Setup a `.env` file with your `EXPO_PUBLIC_GEMINI_API_KEY`
-4. Start the development server: `npm run dev`
+### 1. Prerequisites
+Ensure you have the following installed on your local machine:
+- [Node.js](https://nodejs.org/) (v18 or newer recommended)
+- [Git](https://git-scm.com/)
+- Expo CLI (`npm install -g expo-cli`)
+
+### 2. Installation
+Clone the repository and install the dependencies:
+```bash
+git clone https://github.com/shivanshmax-Monster/KrishiMitraApp.git
+cd KrishiMitraApp
+npm install
+```
+
+### 3. Environment Variables
+For security reasons, API keys are not included in this repository. You must create a `.env` file in the root of the project to enable the AI features.
+
+Create a file named `.env` and add your Google Gemini API Key:
+```env
+EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+### 4. Start the Application
+Start the Expo development server:
+```bash
+npm run dev
+```
+You can now open the app on an Android Emulator, iOS Simulator, or a physical device using the **Expo Go** app.
+
+---
+
+## 🏗️ Building for Production (Android APK)
+
+This project uses EAS (Expo Application Services) to generate production builds.
+To build a standalone `.apk` for Android:
+```bash
+npx eas-cli build -p android --profile preview
+```
 
 ---
 *Developed as a Capstone Internship Project for Mobile App Development.*
