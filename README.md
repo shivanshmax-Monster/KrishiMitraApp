@@ -48,15 +48,25 @@ KrishiMitraApp/
 
 ---
 
-## ⚙️ Running Locally
+## 🕵️‍♂️ How to Test & Review this Project
 
-### 1. Prerequisites
+You have two ways to evaluate this application:
+
+### Option 1: Using the APK (Recommended & Easiest)
+1. **Download:** Click the [Download Android APK](https://github.com/shivanshmax-Monster/KrishiMitraApp/raw/main/KrishiMitraApp.apk) link above from your Android device.
+2. **Install:** Open the downloaded `.apk` file. (You may need to allow "Install from Unknown Sources" in your Android settings).
+3. **Test:** Open the app and explore the features! (Note: The Gemini AI scanner is fully functional out of the box in this APK).
+
+### Option 2: Running the Source Code Locally
+If you prefer to run the code on your own machine:
+
+#### 1. Prerequisites
 Ensure you have the following installed on your local machine:
 - [Node.js](https://nodejs.org/) (v18 or newer recommended)
 - [Git](https://git-scm.com/)
 - Expo CLI (`npm install -g expo-cli`)
 
-### 2. Installation
+#### 2. Installation
 Clone the repository and install the dependencies:
 ```bash
 git clone https://github.com/shivanshmax-Monster/KrishiMitraApp.git
@@ -64,7 +74,7 @@ cd KrishiMitraApp
 npm install
 ```
 
-### 3. Environment Variables
+#### 3. Environment Variables
 For security reasons, API keys are not included in this repository. You must create a `.env` file in the root of the project to enable the AI features.
 
 Create a file named `.env` and add your Google Gemini API Key:
@@ -72,7 +82,7 @@ Create a file named `.env` and add your Google Gemini API Key:
 EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-### 4. Start the Application
+#### 4. Start the Application
 Start the Expo development server:
 ```bash
 npm run dev
